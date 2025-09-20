@@ -16,57 +16,48 @@ export function vaul(dialog: HTMLDialogElement) {
         computedStyle.getPropertyValue('--vaul-border-radius') || '10px',
     }
 
-    const backgroundStyles = {
-      'background-color': '#111',
-    }
-
-    const dynamicStyles = {
-      scale: `${1 - px2percent(settings.scaleAmount * 2, window.innerWidth)}`,
-      translate: `0 ${settings.scaleAmount}px`,
-      'border-radius': settings.borderRadius,
-    }
-
-    const transitionStyles = {
-      transition: 'all 500ms var(--vaul-easing)',
+    const variables = {
+      '--clip-top': window.scrollY + 'px',
+      '--clip-border': settings.borderRadius,
     }
 
     if (open) {
-      // initDragClose(dialog)
+      document.body.style.transformOrigin = `center ${window.scrollY}px`
+      document.body.style.clipPath = `inset(${
+        window.scrollY + 'px'
+      } 0px -10px round calc((1 - var(--amount, 0)) * var(--clip-border, 0px)))`
 
-      Object.assign(document.body.style, {
-        'transform-origin': `center ${window.scrollY}px`,
+      await sleep()
+
+      document.body.style.transition = 'all 500ms var(--vaul-easing)'
+      document.documentElement.style.backgroundColor = '#111'
+
+      await sleep()
+
+      Object.entries(variables).forEach(([key, value]) => {
+        document.body.style.setProperty(key, value)
       })
 
-      await sleep()
-
-      Object.assign(document.body.style, transitionStyles)
-      Object.assign(document.documentElement.style, backgroundStyles)
-
-      await sleep()
-
-      Object.assign(document.body.style, dynamicStyles)
+      document.body.style.translate = `0 calc((1 - var(--amount, 0)) * ${settings.scaleAmount}px)`
+      document.body.style.scale = `calc(1 - (1 - var(--amount, 0)) * ${px2percent(
+        settings.scaleAmount * 2,
+        window.innerWidth
+      )})`
     } else {
-      Object.keys(dynamicStyles).forEach(property => {
-        document.body.style.removeProperty(property)
+      Object.keys(variables).forEach(key => {
+        document.body.style.removeProperty(key)
       })
+
+      document.body.style.removeProperty('translate')
+      document.body.style.removeProperty('scale')
 
       setTimeout(() => {
-        document.body.addEventListener(
-          'transitionend',
-          () => {
-            Object.keys(transitionStyles).forEach(property => {
-              document.body.style.removeProperty(property)
-            })
-
-            Object.keys(backgroundStyles).forEach(property => {
-              document.documentElement.style.removeProperty(property)
-            })
-
-            document.documentElement.style.removeProperty('transform-origin')
-          },
-          { once: true }
-        )
-      })
+        document.documentElement.style.removeProperty('background-color')
+        document.documentElement.style.removeProperty('transform-origin')
+        document.body.style.removeProperty('transition')
+        document.body.style.removeProperty('clip-path')
+        document.body.style.removeProperty('scale')
+      }, 500)
     }
   })
 
@@ -80,22 +71,55 @@ export function vaul(dialog: HTMLDialogElement) {
 
   observer.observe(dialog, { attributeFilter: ['open'] })
 
+  initDragClose(dialog)
+
   return () => observer.disconnect()
 }
 
-function initDragClose(dialog: HTMLElement) {
+function initDragClose(dialog: HTMLDialogElement) {
   let clicked = false
+  let pointer = { x: 0, y: 0 }
+  let amount = 0
 
-  const content = dialog.querySelector('[data-vaul-content]')
+  const handle = dialog.querySelector('[data-vaul-handle]') as HTMLElement
 
-  dialog.addEventListener('pointerdown', () => (clicked = true))
-  dialog.addEventListener('pointermove', () => {
+  if (!handle) return
+
+  handle.addEventListener('pointerdown', e => {
+    clicked = true
+    // pointer.x = e.clientX
+    pointer.y = e.clientY
+    document.body.style.transition = 'none'
+    dialog.style.transition = 'none'
+  })
+
+  window.addEventListener('pointerup', () => {
+    clicked = false
+    document.body.style.transition = 'all 500ms var(--vaul-easing)'
+    dialog.style.removeProperty('transform')
+    dialog.style.removeProperty('transition')
+    document.body.style.removeProperty('--amount')
+
+    if (amount > 100) dialog.close()
+
+    amount = 0
+  })
+
+  window.addEventListener('pointermove', e => {
     if (!clicked) return
 
-    console.log('DRAG')
-    const scrollY = content?.scrollTop
+    let { height } = dialog.getBoundingClientRect()
 
-    console.log(scrollY)
+    const deltaY =
+      amount < 0 ? (e.clientY - pointer.y) / 20 : e.clientY - pointer.y
+
+    amount += deltaY
+
+    dialog.style.transform = `translateY(${amount}px)`
+    console.log(height, amount)
+    document.body.style.setProperty('--amount', (amount / height).toString())
+
+    pointer.y = e.clientY
   })
 }
 
