@@ -15,10 +15,12 @@ export function sheet(dialog: HTMLDialogElement) {
 
     const settings = {
       scale: parseFloat(
-        computedStyle.getPropertyValue('--sheet-scale-amount') || '20px'
+        computedStyle.getPropertyValue('--sheet-background-scale-amount') ||
+          '20px'
       ),
       borderRadius:
-        computedStyle.getPropertyValue('--sheet-border-radius') || '10px',
+        computedStyle.getPropertyValue('--sheet-background-border-radius') ||
+        '10px',
     }
 
     const variables = {
@@ -76,10 +78,6 @@ export function sheet(dialog: HTMLDialogElement) {
 
   const destroyDragClose = initDragClose(dialog)
 
-  function viewportHandler() {
-    dialog.style.setProperty('--vvh', window.visualViewport?.height + 'px')
-  }
-
   const styles = {
     'max-height': 'none',
     height: 'calc(var(--vvh, 100dvh) - var(--sheet-top-margin, 3rem))',
@@ -92,9 +90,18 @@ export function sheet(dialog: HTMLDialogElement) {
 
   Object.assign(dialog.style, styles)
 
+  function viewportHandler() {
+    dialog.style.setProperty('--vvh', window.visualViewport?.height + 'px')
+  }
+
   viewportHandler()
 
-  // window.visualViewport?.addEventListener('scroll', viewportHandler)
+  window.visualViewport?.addEventListener('scroll', e => {
+    console.log('e', e)
+  }, {
+    signal: abortController.signal,
+  })
+
   window.visualViewport?.addEventListener('resize', viewportHandler, {
     signal: abortController.signal,
   })

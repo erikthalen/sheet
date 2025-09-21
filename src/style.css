@@ -24,8 +24,8 @@ body {
   margin: 0;
 
   --sheet-top-margin: 3rem;
-  --sheet-scale-amount: 10px;
-  --sheet-border-radius: 10px;
+  --sheet-background-scale-amount: 10px;
+  --sheet-background-border-radius: 10px;
   --sheet-easing: cubic-bezier(0.32, 0.72, 0, 1);
 
   font-family: 'Inter', sans-serif;
