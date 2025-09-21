@@ -2,280 +2,171 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <link rel="icon" type="image/png" href="/favicon.png" />
     <meta
       name="viewport"
       content="width=device-width, initial-scale=1.0, interactive-widget=resizes-content"
     />
-    <title>Vite + TS</title>
+    <title>Sheet</title>
     <meta name="theme-color" content="white" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
+      rel="stylesheet"
+    />
+
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.blue.min.css"
+    />
+
+    <script type="module" src="/src/main.ts"></script>
+
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/@highlightjs/cdn-assets@11.11.1/styles/github.min.css"
+    />
+    <script src="https://unpkg.com/@highlightjs/cdn-assets@11.11.1/highlight.min.js"></script>
+    <script src="https://unpkg.com/@highlightjs/cdn-assets@11.11.1/languages/xml.min.js"></script>
+
+    <script defer>
+      hljs.highlightAll()
+    </script>
   </head>
 
   <body>
-    <div id="app">
-      <button
-        id="trigger"
-        onclick="document.getElementById('dialog')?.showModal()"
-      >
-        Open
-      </button>
+    <div class="background"></div>
 
-      <dialog open data-vaul id="dialog" closedby="any">
-        <main data-vaul-content>
-          <header>
-            <button class="handle" data-vaul-handle>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="16"
-                height="16"
-                viewBox="0 0 16 16"
-              >
-                <!-- Icon from HeroIcons by Refactoring UI Inc - https://github.com/tailwindlabs/heroicons/blob/master/LICENSE -->
-                <path
-                  fill="currentColor"
-                  d="M3.75 7.25a.75.75 0 0 0 0 1.5h8.5a.75.75 0 0 0 0-1.5z"
-                />
-              </svg>
-            </button>
-            
-            <button
-              onclick="this.closest('dialog')?.close()"
-              style="display: inline-flex"
-              aria-title="Close dialog"
+    <main>
+      <div class="intro">
+        <h1>Sheet</h1>
+
+        <p style="margin-bottom: 2rem">
+          Native drawer component using <code>&lt;dialog&gt;</code>
+        </p>
+
+        <div>
+          <button
+            id="trigger"
+            onclick="document.getElementById('dialog')?.showModal()"
+          >
+            Open sheet
+          </button>
+
+          <a href="https://github.com/erikthalen/sheet" class="secondary"
+            >GitHub</a
+          >
+        </div>
+      </div>
+
+      <dialog data-sheet id="dialog" closedby="any">
+        <div data-sheet-content>
+          <button
+            class="handle outline secondary"
+            data-sheet-handle
+            aria-title="Drag to close"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 16 16"
             >
-              <svg width="16" height="16" viewBox="0 0 16 16">
-                <!-- Icon from HeroIcons by Refactoring UI Inc - https://github.com/tailwindlabs/heroicons/blob/master/LICENSE -->
-                <path
-                  fill="currentColor"
-                  d="M5.28 4.22a.75.75 0 0 0-1.06 1.06L6.94 8l-2.72 2.72a.75.75 0 1 0 1.06 1.06L8 9.06l2.72 2.72a.75.75 0 1 0 1.06-1.06L9.06 8l2.72-2.72a.75.75 0 0 0-1.06-1.06L8 6.94z"
-                />
-              </svg>
-            </button>
+              <path
+                fill="currentColor"
+                d="M3.75 7.25a.75.75 0 0 0 0 1.5h8.5a.75.75 0 0 0 0-1.5z"
+              />
+            </svg>
+          </button>
 
-            <button
-              id="trigger"
-              onclick="document.getElementById('dialog_inner')?.showModal()"
+          <h2>Sheet drawer</h2>
+
+          <p>
+            Applies minimal styling and gesture-controls for making a
+            <code>&lt;dialog&gt;</code> element look and behave like an
+            <a
+              href="https://developer.apple.com/design/human-interface-guidelines/sheets"
+              >iOS Sheet component</a
             >
-              Open
-            </button>
-
-            <p>This is the search bar</p>
-            <input type="text" placeholder="Search for something" name="q" />
-          </header>
-
-          <code>START</code>
-
-          <dialog data-vaul id="dialog_inner" closedby="any">
-            <main data-vaul-content>
-              <header>
-                <button
-                  onclick="this.closest('dialog')?.close()"
-                  style="display: inline-flex; position: relative"
-                  aria-title="Close dialog"
-                >
-                  <svg width="16" height="16" viewBox="0 0 16 16">
-                    <!-- Icon from HeroIcons by Refactoring UI Inc - https://github.com/tailwindlabs/heroicons/blob/master/LICENSE -->
-                    <path
-                      fill="currentColor"
-                      d="M5.28 4.22a.75.75 0 0 0-1.06 1.06L6.94 8l-2.72 2.72a.75.75 0 1 0 1.06 1.06L8 9.06l2.72 2.72a.75.75 0 1 0 1.06-1.06L9.06 8l2.72-2.72a.75.75 0 0 0-1.06-1.06L8 6.94z"
-                    />
-                  </svg>
-                </button>
-              </header>
-
-              <code>START</code>
-
-              <p>
-                Late at night, when most of the city was asleep, the train
-                station remained alive with movement. Travelers sat with heavy
-                bags at their feet, sipping coffee to stay awake. The
-                loudspeaker occasionally called out destinations, breaking the
-                steady hum of conversation. There was a certain beauty in that
-                in-between space, where strangers crossed paths only briefly
-                before disappearing into different directions.
-              </p>
-              <code>END</code>
-            </main>
-          </dialog>
-
-          <p>
-            The old lighthouse at the edge of the bay had not been in use for
-            decades, yet travelers often stopped to take photos of its weathered
-            bricks. Some said they could hear the faint sound of a foghorn at
-            night, even though the machinery was long dismantled. Locals liked
-            to tell stories of sailors who followed the ghostly sound and found
-            their way safely to shore.
           </p>
 
-          <p>
-            In the middle of the city stood a narrow street lined with
-            second-hand bookstores. Each shop seemed to have its own
-            personality: one stacked volumes to the ceiling, while another
-            placed chairs outside, inviting passersby to sit and read. The smell
-            of paper and dust lingered, mixed with the scent of coffee from a
-            nearby café.
-          </p>
+          <p>Close the drawer by dragging down the handle.</p>
+
+          <hr />
 
           <p>
-            She woke up early, before the sun had fully risen, and took her
-            sketchbook down to the river. The water moved lazily, catching
-            reflections of pink and orange clouds. Drawing the ripples became
-            almost meditative, a practice of paying attention to tiny shifts in
-            light and texture that most people walked past without noticing.
+            Automatically resizes inself to fit the screen, even on mobiles.
+            Focus the input field below to see it in action.
           </p>
 
-          <p>
-            Farmers in the valley had been preparing for the harvest festival
-            for weeks. They decorated wagons with corn stalks, gourds, and
-            bright autumn leaves. At night, lanterns were hung along the paths,
-            making the entire place glow with a warm, golden light. Children ran
-            between the stalls, laughing and chasing one another while the smell
-            of roasted apples filled the air.
-          </p>
+          <input type="text" placeholder="Input field" name="q" />
 
-          <p>
-            On a rainy afternoon, the library was nearly empty except for a few
-            students bent over their laptops. A librarian quietly moved between
-            the shelves, reshelving books that had been misplaced. Outside,
-            raindrops streamed down the tall windows, blurring the view of the
-            world beyond and making the space feel like a small, protective
-            cocoon.
-          </p>
+          <hr />
 
-          <p>
-            He had always been fascinated by maps. Even as a child, he could
-            spend hours tracing the borders of countries he had never visited,
-            imagining what the landscapes looked like. Years later, he carried
-            an old atlas in his backpack during his travels, using it more as a
-            talisman than a tool, since GPS had already replaced paper maps for
-            navigation.
-          </p>
-
-          <p>
-            The market was a burst of color and sound: vendors shouting out
-            their prices, the clink of coins being exchanged, the rustle of bags
-            being filled with fresh produce. Bright red tomatoes, golden
-            mangoes, and piles of green herbs created a patchwork of hues. A
-            musician stood at the corner with a violin, adding a soft soundtrack
-            to the busy rhythm of commerce.
-          </p>
-
-          <p>
-            At the base of the mountains, a narrow trail wound upward through
-            dense pine forests. The air grew cooler with every step, and the
-            scent of resin and moss became sharper. Birds occasionally darted
-            across the path, disappearing as quickly as they came. By the time
-            the trees thinned, the valley below looked like a patchwork quilt of
-            greens and browns.
-          </p>
-
-          <p>
-            The town square was dominated by a large fountain, its water
-            sparkling under the midday sun. Children tossed coins into it,
-            making wishes with solemn expressions. Around the square, cafés
-            spilled their tables onto the cobblestones, where people lingered
-            over long conversations. It was the kind of place where time seemed
-            to move slower, almost deliberately.
-          </p>
-
-          <p>
-            Late at night, when most of the city was asleep, the train station
-            remained alive with movement. Travelers sat with heavy bags at their
-            feet, sipping coffee to stay awake. The loudspeaker occasionally
-            called out destinations, breaking the steady hum of conversation.
-            There was a certain beauty in that in-between space, where strangers
-            crossed paths only briefly before disappearing into different
-            directions.
-          </p>
-          <code>END</code>
-        </main>
+          <p>.</p>
+          <p>.</p>
+          <p>.</p>
+          <p>.</p>
+          <p>.</p>
+          <p>.</p>
+          <p>.</p>
+          <p>.</p>
+          <p>.</p>
+          <p>.</p>
+          <p>.</p>
+          <p>.</p>
+          <p>.</p>
+          <p>.</p>
+          <p>.</p>
+          <p>.</p>
+          <p>.</p>
+          <p>.</p>
+          <p>.</p>
+          <p>.</p>
+          <p>.</p>
+          <p>.</p>
+        </div>
       </dialog>
 
-      <p>
-        The old lighthouse at the edge of the bay had not been in use for
-        decades, yet travelers often stopped to take photos of its weathered
-        bricks. Some said they could hear the faint sound of a foghorn at night,
-        even though the machinery was long dismantled. Locals liked to tell
-        stories of sailors who followed the ghostly sound and found their way
-        safely to shore.
-      </p>
+      <p>Installation</p>
 
-      <p>
-        In the middle of the city stood a narrow street lined with second-hand
-        bookstores. Each shop seemed to have its own personality: one stacked
-        volumes to the ceiling, while another placed chairs outside, inviting
-        passersby to sit and read. The smell of paper and dust lingered, mixed
-        with the scent of coffee from a nearby café.
-      </p>
+      <pre><code>&lt;button onclick="document.getElementById('dialog')?.showModal()"&gt;
+  Open sheet
+&lt;/button&gt;
 
-      <p>
-        She woke up early, before the sun had fully risen, and took her
-        sketchbook down to the river. The water moved lazily, catching
-        reflections of pink and orange clouds. Drawing the ripples became almost
-        meditative, a practice of paying attention to tiny shifts in light and
-        texture that most people walked past without noticing.
-      </p>
+&lt;dialog data-sheet id="dialog" closedby="any"&gt;
+  &lt;button data-sheet-handle aria-title="Drag to close"&gt;
+    —
+  &lt;/button&gt;
+  
+  &lt;p&gt;Content&lt;/p&gt;
+&lt;/dialog&gt;
+      </code></pre>
 
-      <p>
-        Farmers in the valley had been preparing for the harvest festival for
-        weeks. They decorated wagons with corn stalks, gourds, and bright autumn
-        leaves. At night, lanterns were hung along the paths, making the entire
-        place glow with a warm, golden light. Children ran between the stalls,
-        laughing and chasing one another while the smell of roasted apples
-        filled the air.
-      </p>
+      <p>Minimal example</p>
 
-      <p>
-        On a rainy afternoon, the library was nearly empty except for a few
-        students bent over their laptops. A librarian quietly moved between the
-        shelves, reshelving books that had been misplaced. Outside, raindrops
-        streamed down the tall windows, blurring the view of the world beyond
-        and making the space feel like a small, protective cocoon.
-      </p>
+      <pre><code>&lt;button onclick="document.getElementById('dialog')?.showModal()"&gt;
+  Open sheet
+&lt;/button&gt;
 
-      <p>
-        He had always been fascinated by maps. Even as a child, he could spend
-        hours tracing the borders of countries he had never visited, imagining
-        what the landscapes looked like. Years later, he carried an old atlas in
-        his backpack during his travels, using it more as a talisman than a
-        tool, since GPS had already replaced paper maps for navigation.
-      </p>
+&lt;dialog data-sheet id="dialog" closedby="any"&gt;
+  &lt;button data-sheet-handle aria-title="Drag to close"&gt;
+    —
+  &lt;/button&gt;
+  
+  &lt;p&gt;Content&lt;/p&gt;
+&lt;/dialog&gt;
+</code></pre>
 
-      <p>
-        The market was a burst of color and sound: vendors shouting out their
-        prices, the clink of coins being exchanged, the rustle of bags being
-        filled with fresh produce. Bright red tomatoes, golden mangoes, and
-        piles of green herbs created a patchwork of hues. A musician stood at
-        the corner with a violin, adding a soft soundtrack to the busy rhythm of
-        commerce.
-      </p>
+      <dialog data-sheet id="dialog" closedby="any">
+        <div data-sheet-content>
+          <button data-sheet-handle aria-title="Drag to close">—</button>
 
-      <p>
-        At the base of the mountains, a narrow trail wound upward through dense
-        pine forests. The air grew cooler with every step, and the scent of
-        resin and moss became sharper. Birds occasionally darted across the
-        path, disappearing as quickly as they came. By the time the trees
-        thinned, the valley below looked like a patchwork quilt of greens and
-        browns.
-      </p>
-
-      <p>
-        The town square was dominated by a large fountain, its water sparkling
-        under the midday sun. Children tossed coins into it, making wishes with
-        solemn expressions. Around the square, cafés spilled their tables onto
-        the cobblestones, where people lingered over long conversations. It was
-        the kind of place where time seemed to move slower, almost deliberately.
-      </p>
-
-      <p>
-        Late at night, when most of the city was asleep, the train station
-        remained alive with movement. Travelers sat with heavy bags at their
-        feet, sipping coffee to stay awake. The loudspeaker occasionally called
-        out destinations, breaking the steady hum of conversation. There was a
-        certain beauty in that in-between space, where strangers crossed paths
-        only briefly before disappearing into different directions.
-      </p>
-    </div>
-    <script type="module" src="/src/main.ts"></script>
+          <p>Content</p>
+        </div>
+      </dialog>
+    </main>
   </body>
 </html>

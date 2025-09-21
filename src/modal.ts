@@ -1,7 +1,7 @@
-import { vaul, SELECTOR } from './lib'
+import { sheet, SELECTOR } from './lib'
 
 const dialogs = document.querySelectorAll(SELECTOR)
 
 dialogs.forEach(el => {
-  vaul(el as HTMLDialogElement)
+  sheet(el as HTMLDialogElement)
 })

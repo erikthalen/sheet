@@ -1,15 +1,15 @@
 :root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
-
-  color: #213547;
   background-color: #ffffff;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
+  --pico-form-element-spacing-vertical: 0.5rem;
+  --pico-form-element-spacing-horizontal: 1rem;
+  --pico-border-radius: 0.5rem;
+  --pico-font-size: 80%;
 }
 
 * {
@@ -21,19 +21,18 @@ html {
 }
 
 body {
-  --size: 2lh;
   margin: 0;
 
-  --vaul-scale-amount: 10px;
-  --vaul-border-radius: 10px;
-  --vaul-easing: cubic-bezier(0.32, 0.72, 0, 1);
+  --sheet-scale-amount: 10px;
+  --sheet-border-radius: 10px;
+  --sheet-easing: cubic-bezier(0.32, 0.72, 0, 1);
 
-  background: repeating-linear-gradient(
-    #ddd,
-    #ddd var(--size),
-    #eee var(--size),
-    #eee calc(var(--size) * 2)
-  );
+  font-family: 'Inter', sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
+
+  background-color: white;
 
   min-height: 100vh;
 
@@ -43,26 +42,68 @@ body {
   }
 }
 
-p {
-  margin: 0;
+.background {
+  --color-1: grey;
+  --color-2: transparent;
+
+  position: absolute;
+
+  height: 100%;
+  width: 100%;
+
+  background: linear-gradient(var(--color-1) 2px, transparent 2px),
+    linear-gradient(90deg, var(--color-1) 2px, transparent 2px),
+    linear-gradient(var(--color-1) 1px, transparent 1px),
+    linear-gradient(90deg, var(--color-1) 1px, var(--color-2) 1px);
+  background-size: 250px 250px, 250px 250px, 50px 50px, 50px 50px;
+  background-position: -2px -2px, -2px -2px, -1px -1px, -1px -1px;
+
+  mask-image: linear-gradient(
+    rgba(0, 0, 0, 0.4),
+    rgba(0, 0, 0, 0.05) 20%,
+    transparent
+  );
 }
 
-input {
-  font-size: 1rem;
+main {
+  position: relative;
+  z-index: 1;
+
+  max-width: 640px;
+  padding-inline: 1rem;
+  margin: auto;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
-#trigger {
-  position: sticky;
-  top: 0;
-  left: 0;
+.intro {
+  margin-top: 30vh;
+  margin-bottom: 10vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  div {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+  }
+}
+
+h1 {
+  font-size: 5rem;
+  font-weight: 600;
 }
 
 dialog {
-  --margin-top: 40px;
-  --margin-inline: 0rem;
+  --margin-top: 3rem;
   /* width: calc(100vw - calc(var(--margin-inline) * 2)); */
-  border: none;
-  left: var(--margin-inline);
+
+  display: block;
+
   background: white;
   margin: 0;
   padding-block: 0;
@@ -74,62 +115,76 @@ dialog {
   transition: max-height 100ms;
 
   border-radius: 10px 10px 0 0;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
 
   position: fixed;
   top: var(--margin-top);
   /* bottom: var(--margin); */
 
-  &:has([data-vaul-content]) {
-    [data-vaul-content] {
+  &:has([data-sheet-content]) {
+    [data-sheet-content] {
       max-height: calc(var(--vvh, 100dvh) - var(--margin-top));
       overflow: auto;
       overscroll-behavior: contain;
     }
   }
 
-  &:not(:has([data-vaul-content])) {
+  &:not(:has([data-sheet-content])) {
     max-height: calc(var(--vvh, 100dvh) - var(--margin-top));
     overflow: auto;
     overscroll-behavior: contain;
   }
 
-  /* touch-action: manipulation; */
+  [data-sheet-content] {
+    padding-inline: 1rem;
+    max-width: 450px;
+    margin: auto;
+  }
 
-  header {
-    border-bottom: 1px solid;
-    position: sticky;
-    top: 0;
-    padding-block: 10px;
-    background-color: white;
-    z-index: 1;
+  [data-sheet-handle] {
+    touch-action: none;
+  }
 
-    button {
-      position: absolute;
-      right: 0;
-    }
+  input {
+    display: block;
   }
 }
 
-.handle {
+button.handle.secondary {
   width: 100%;
   display: flex;
   justify-content: center;
-  background-color: transparent;
+  border: 0;
   border: none;
   cursor: grab;
+  box-shadow: none;
+  border-radius: 0;
 
-  touch-action: none;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background-color: white;
+}
+
+pre {
+  overflow: auto;
+  max-width: 100%;
+}
+
+pre,
+code {
+  display: inline-block;
 }
 
 dialog {
   transform: translateY(100%);
-  transition: all 500ms var(--vaul-easing) allow-discrete;
+  transition: all 500ms var(--sheet-easing) allow-discrete;
 }
 
 dialog::backdrop {
   background-color: rgb(0 0 0 / 25%);
   opacity: 0;
-  transition: all 500ms var(--vaul-easing) allow-discrete;
+  transition: all 500ms var(--sheet-easing) allow-discrete;
 }
 
 dialog[open] {

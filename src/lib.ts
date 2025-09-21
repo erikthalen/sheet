@@ -1,19 +1,24 @@
-export const SELECTOR = '[data-vaul]'
+export const SELECTOR = '[data-sheet]'
+
+const AMOUNT_TO_CLOSE = 100
+const TRANSITION = 'all 500ms var(--sheet-easing)'
 
 const sleep = (ms = 0) => new Promise(r => setTimeout(r, ms))
 
-export function vaul(dialog: HTMLDialogElement) {
-  const observer = new MutationObserver(async ([record]) => {
+export function sheet(dialog: HTMLDialogElement) {
+  const abortController = new AbortController()
+
+  const observer = new MutationObserver(async () => {
     const open = dialog.getAttribute('open') !== null
 
     const computedStyle = getComputedStyle(document.body)
 
     const settings = {
-      scaleAmount: parseFloat(
-        computedStyle.getPropertyValue('--vaul-scale-amount') || '20px'
+      scale: parseFloat(
+        computedStyle.getPropertyValue('--sheet-scale-amount') || '20px'
       ),
       borderRadius:
-        computedStyle.getPropertyValue('--vaul-border-radius') || '10px',
+        computedStyle.getPropertyValue('--sheet-border-radius') || '10px',
     }
 
     const variables = {
@@ -27,22 +32,21 @@ export function vaul(dialog: HTMLDialogElement) {
         window.scrollY + 'px'
       } 0px -10px round calc((1 - var(--amount, 0)) * var(--clip-border, 0px)))`
 
-      await sleep()
+      await sleep(25)
 
-      document.body.style.transition = 'all 500ms var(--vaul-easing)'
+      document.body.style.transition = TRANSITION
       document.documentElement.style.backgroundColor = '#111'
 
-      await sleep()
+      await sleep(25)
 
       Object.entries(variables).forEach(([key, value]) => {
         document.body.style.setProperty(key, value)
       })
 
-      document.body.style.translate = `0 calc((1 - var(--amount, 0)) * ${settings.scaleAmount}px)`
-      document.body.style.scale = `calc(1 - (1 - var(--amount, 0)) * ${px2percent(
-        settings.scaleAmount * 2,
-        window.innerWidth
-      )})`
+      document.body.style.translate = `0 calc((1 - var(--amount, 0)) * ${settings.scale}px)`
+      document.body.style.scale = `calc(1 - (1 - var(--amount, 0)) * ${
+        (settings.scale * 2) / window.innerWidth
+      })`
     } else {
       Object.keys(variables).forEach(key => {
         document.body.style.removeProperty(key)
@@ -53,10 +57,9 @@ export function vaul(dialog: HTMLDialogElement) {
 
       setTimeout(() => {
         document.documentElement.style.removeProperty('background-color')
-        document.documentElement.style.removeProperty('transform-origin')
+        document.body.style.removeProperty('transform-origin')
         document.body.style.removeProperty('transition')
         document.body.style.removeProperty('clip-path')
-        document.body.style.removeProperty('scale')
       }, 500)
     }
   })
@@ -71,58 +74,87 @@ export function vaul(dialog: HTMLDialogElement) {
 
   observer.observe(dialog, { attributeFilter: ['open'] })
 
-  initDragClose(dialog)
+  const destroyDragClose = initDragClose(dialog)
 
-  return () => observer.disconnect()
+  function viewportHandler() {
+    dialog.style.setProperty('--vvh', window.visualViewport?.height + 'px')
+  }
+
+  viewportHandler()
+
+  // window.visualViewport?.addEventListener('scroll', viewportHandler)
+  window.visualViewport?.addEventListener('resize', viewportHandler, {
+    signal: abortController.signal,
+  })
+
+  return () => {
+    observer.disconnect()
+    abortController.abort()
+    destroyDragClose()
+  }
 }
 
 function initDragClose(dialog: HTMLDialogElement) {
+  const abortController = new AbortController()
+
   let clicked = false
   let pointer = { x: 0, y: 0 }
   let amount = 0
 
-  const handle = dialog.querySelector('[data-vaul-handle]') as HTMLElement
+  const handle = dialog.querySelector('[data-sheet-handle]') as HTMLElement
 
-  if (!handle) return
+  if (!handle) return () => abortController.abort()
 
-  handle.addEventListener('pointerdown', e => {
-    clicked = true
-    // pointer.x = e.clientX
-    pointer.y = e.clientY
-    document.body.style.transition = 'none'
-    dialog.style.transition = 'none'
-  })
+  handle.addEventListener(
+    'pointerdown',
+    e => {
+      clicked = true
+      pointer.y = e.clientY
 
-  window.addEventListener('pointerup', () => {
-    clicked = false
-    document.body.style.transition = 'all 500ms var(--vaul-easing)'
-    dialog.style.removeProperty('transform')
-    dialog.style.removeProperty('transition')
-    document.body.style.removeProperty('--amount')
+      document.body.style.transition = 'none'
+      dialog.style.transition = 'none'
+    },
+    { signal: abortController.signal }
+  )
 
-    if (amount > 100) dialog.close()
+  window.addEventListener(
+    'pointerup',
+    () => {
+      clicked = false
 
-    amount = 0
-  })
+      document.body.style.transition = TRANSITION
+      document.body.style.removeProperty('--amount')
 
-  window.addEventListener('pointermove', e => {
-    if (!clicked) return
+      dialog.style.removeProperty('transform')
+      dialog.style.removeProperty('transition')
 
-    let { height } = dialog.getBoundingClientRect()
+      if (amount > AMOUNT_TO_CLOSE) dialog.close()
 
-    const deltaY =
-      amount < 0 ? (e.clientY - pointer.y) / 20 : e.clientY - pointer.y
+      amount = 0
+    },
+    { signal: abortController.signal }
+  )
 
-    amount += deltaY
+  window.addEventListener(
+    'pointermove',
+    e => {
+      if (!clicked) return
 
-    dialog.style.transform = `translateY(${amount}px)`
-    console.log(height, amount)
-    document.body.style.setProperty('--amount', (amount / height).toString())
+      let { height } = dialog.getBoundingClientRect()
 
-    pointer.y = e.clientY
-  })
-}
+      const deltaY = e.clientY - pointer.y
 
-function px2percent(targetPx: number, px: number) {
-  return targetPx / px
+      amount += amount < 0 ? deltaY / 20 : deltaY
+
+      dialog.style.transform = `translateY(${amount}px)`
+      document.body.style.setProperty('--amount', (amount / height).toString())
+
+      pointer.y = e.clientY
+    },
+    { signal: abortController.signal }
+  )
+
+  return () => {
+    abortController.abort()
+  }
 }
