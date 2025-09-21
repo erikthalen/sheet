@@ -1,5 +1,5 @@
 :root {
-  background-color: #ffffff;
+  background-color: var(--pico-background-color);
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -32,7 +32,7 @@ body {
   font-weight: 400;
   font-style: normal;
 
-  background-color: white;
+  background-color: var(--pico-background-color);
 
   min-height: 100vh;
 
@@ -104,7 +104,7 @@ dialog {
 
   display: block;
 
-  background: white;
+  background-color: var(--pico-background-color);
   margin: 0;
   padding-block: 0;
 
@@ -163,7 +163,7 @@ button.handle.secondary {
   position: sticky;
   top: 0;
   z-index: 1;
-  background-color: white;
+  background-color: var(--pico-background-color);
 }
 
 pre {
