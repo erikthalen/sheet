@@ -81,10 +81,11 @@ export function sheet(dialog: HTMLDialogElement) {
   }
 
   const styles = {
-    'max-height': 'calc(var(--vvh, 100dvh) - var(--sheet-top-margin, 3rem))',
+    'max-height': 'none',
+    height: 'calc(var(--vvh, 100dvh) - var(--sheet-top-margin, 3rem))',
     position: 'fixed',
-    top: 'auto',
-    bottom: 0,
+    top: 'var(--sheet-top-margin, 3rem)',
+    bottom: 'auto',
     overflow: 'auto',
     'overscroll-behavior': 'contain',
   }
