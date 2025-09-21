@@ -137,7 +137,10 @@
 
       <pre><code>import { sheet } from 'https://esm.sh/gh/erikthalen/sheet/src/lib'
 
-document.querySelectorAll('dialog').forEach(sheet)
+const destroySheet = document.querySelectorAll('dialog').map(sheet)
+
+// init function returns a teardown function
+destroySheet()
 </code></pre>
 
       <p>Minimal example</p>
@@ -146,7 +149,7 @@ document.querySelectorAll('dialog').forEach(sheet)
   Open sheet
 &lt;/button&gt;
 
-&lt;dialog data-sheet id="dialog" closedby="any"&gt;
+&lt;dialog id="dialog" closedby="any"&gt;
   &lt;button data-sheet-handle aria-title="Drag to close"&gt;
     —
   &lt;/button&gt;
@@ -159,8 +162,8 @@ document.querySelectorAll('dialog').forEach(sheet)
 
       <pre><code>:root {
   --sheet-top-margin: 3rem;
-  --sheet-scale-amount: 10px;
-  --sheet-border-radius: 10px;
+  --sheet-background-scale-amount: 10px;
+  --sheet-background-border-radius: 10px;
   --sheet-easing: cubic-bezier(0.32, 0.72, 0, 1);
 }
 </code></pre>

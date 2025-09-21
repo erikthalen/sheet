@@ -34,7 +34,6 @@ body {
   font-style: normal;
 
   background-color: var(--pico-background-color);
-
   min-height: 100vh;
 
   &:has(dialog[open]) {
@@ -73,6 +72,7 @@ main {
   max-width: 600px;
   padding-inline: 1rem;
   margin: auto;
+  margin-bottom: 10vh;
 
   display: flex;
   flex-direction: column;
@@ -146,6 +146,7 @@ button.handle.secondary {
 
 pre {
   width: 100%;
+  margin-bottom: 5vh;
 }
 
 dialog {
