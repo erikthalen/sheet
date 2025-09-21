@@ -1,7 +1,3 @@
-import { sheet, SELECTOR } from './lib'
+import { sheet } from './lib'
 
-const dialogs = document.querySelectorAll(SELECTOR)
-
-dialogs.forEach(el => {
-  sheet(el as HTMLDialogElement)
-})
+document.querySelectorAll('dialog').forEach(sheet)

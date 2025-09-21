@@ -80,6 +80,17 @@ export function sheet(dialog: HTMLDialogElement) {
     dialog.style.setProperty('--vvh', window.visualViewport?.height + 'px')
   }
 
+  const styles = {
+    'max-height': 'calc(var(--vvh, 100dvh) - var(--sheet-top-margin, 3rem))',
+    position: 'fixed',
+    top: 'auto',
+    bottom: 0,
+    overflow: 'auto',
+    'overscroll-behavior': 'contain',
+  }
+
+  Object.assign(dialog.style, styles)
+
   viewportHandler()
 
   // window.visualViewport?.addEventListener('scroll', viewportHandler)
@@ -102,6 +113,8 @@ function initDragClose(dialog: HTMLDialogElement) {
   let amount = 0
 
   const handle = dialog.querySelector('[data-sheet-handle]') as HTMLElement
+
+  handle.style.touchAction = 'none'
 
   if (!handle) return () => abortController.abort()
 
