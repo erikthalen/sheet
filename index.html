@@ -137,10 +137,10 @@
 
       <pre><code>import { sheet } from 'https://esm.sh/gh/erikthalen/sheet/src/lib'
 
-const destroySheet = document.querySelectorAll('dialog').map(sheet)
+const destroySheets = document.querySelectorAll('dialog').map(sheet)
 
 // init function returns a teardown function
-destroySheet()
+destroySheets.forEach(fn => fn())
 </code></pre>
 
       <p>Minimal example</p>
