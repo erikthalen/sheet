@@ -1,7 +1,7 @@
 export const SELECTOR = '[data-sheet]'
 
 const AMOUNT_TO_CLOSE = 100
-const TRANSITION = 'all 500ms var(--sheet-easing)'
+const TRANSITION = `all var(--sheet-duration, 500ms) var(--sheet-easing)`
 
 const sleep = (ms = 0) => new Promise(r => setTimeout(r, ms))
 
@@ -11,17 +11,7 @@ export function sheet(dialog: HTMLDialogElement) {
   const observer = new MutationObserver(async () => {
     const open = dialog.getAttribute('open') !== null
 
-    const computedStyle = getComputedStyle(document.body)
-
-    const settings = {
-      scale: parseFloat(
-        computedStyle.getPropertyValue('--sheet-background-scale-amount') ||
-          '20px'
-      ),
-      borderRadius:
-        computedStyle.getPropertyValue('--sheet-background-border-radius') ||
-        '10px',
-    }
+    const settings = getDefaultValues()
 
     const variables = {
       '--clip-top': window.scrollY + 'px',
@@ -29,6 +19,7 @@ export function sheet(dialog: HTMLDialogElement) {
     }
 
     if (open) {
+      // styles to go from
       document.body.style.transformOrigin = `center ${window.scrollY}px`
       document.body.style.clipPath = `inset(${
         window.scrollY + 'px'
@@ -41,6 +32,12 @@ export function sheet(dialog: HTMLDialogElement) {
 
       await sleep(25)
 
+      // apply transition
+      document.body.style.transition = TRANSITION
+
+      await sleep(25)
+
+      // styles to go to
       Object.entries(variables).forEach(([key, value]) => {
         document.body.style.setProperty(key, value)
       })
@@ -57,12 +54,13 @@ export function sheet(dialog: HTMLDialogElement) {
       document.body.style.removeProperty('translate')
       document.body.style.removeProperty('scale')
 
+      // cleanup after transition is done
       setTimeout(() => {
         document.documentElement.style.removeProperty('background-color')
         document.body.style.removeProperty('transform-origin')
         document.body.style.removeProperty('transition')
         document.body.style.removeProperty('clip-path')
-      }, 500)
+      }, settings.duration)
     }
   })
 
@@ -76,40 +74,16 @@ export function sheet(dialog: HTMLDialogElement) {
 
   observer.observe(dialog, { attributeFilter: ['open'] })
 
+  Object.assign(dialog.style, dialogStaticStyles())
+
   const destroyDragClose = initDragClose(dialog)
-
-  const styles = {
-    'max-height': 'none',
-    height: 'calc(var(--vvh, 100dvh) - var(--sheet-top-margin, 3rem))',
-    position: 'fixed',
-    top: 'var(--sheet-top-margin, 3rem)',
-    bottom: 'auto',
-    overflow: 'auto',
-    'overscroll-behavior': 'contain',
-  }
-
-  Object.assign(dialog.style, styles)
-
-  function viewportHandler() {
-    dialog.style.setProperty('--vvh', window.visualViewport?.height + 'px')
-  }
-
-  viewportHandler()
-
-  window.visualViewport?.addEventListener('scroll', e => {
-    console.log('e', e)
-  }, {
-    signal: abortController.signal,
-  })
-
-  window.visualViewport?.addEventListener('resize', viewportHandler, {
-    signal: abortController.signal,
-  })
+  const destroyViewportResize = initViewportResize(dialog)
 
   return () => {
     observer.disconnect()
     abortController.abort()
     destroyDragClose()
+    destroyViewportResize()
   }
 }
 
@@ -177,5 +151,57 @@ function initDragClose(dialog: HTMLDialogElement) {
 
   return () => {
     abortController.abort()
+  }
+}
+
+function initViewportResize(root: HTMLElement) {
+  const abortController = new AbortController()
+
+  function viewportHandler() {
+    root.style.setProperty('--vvh', window.visualViewport?.height + 'px')
+  }
+
+  viewportHandler()
+
+  window.visualViewport?.addEventListener(
+    'scroll',
+    e => {
+      console.log('e', e)
+    },
+    {
+      signal: abortController.signal,
+    }
+  )
+
+  window.visualViewport?.addEventListener('resize', viewportHandler, {
+    signal: abortController.signal,
+  })
+
+  return () => abortController.abort()
+}
+
+function getDefaultValues() {
+  const cs = getComputedStyle(document.body)
+
+  return {
+    duration: parseFloat(cs.getPropertyValue('--sheet-duration') || '500ms'),
+    scale: parseFloat(
+      cs.getPropertyValue('--sheet-background-scale-amount') || '20px'
+    ),
+    borderRadius:
+      cs.getPropertyValue('--sheet-background-border-radius') || '10px',
+  }
+}
+
+function dialogStaticStyles() {
+  return {
+    'max-height': 'none',
+    height: 'calc(var(--vvh, 100dvh) - var(--sheet-top-margin, 3rem) + 20px)',
+    'padding-bottom': '20px',
+    position: 'fixed',
+    top: 'var(--sheet-top-margin, 3rem)',
+    bottom: 'auto',
+    overflow: 'auto',
+    'overscroll-behavior': 'contain',
   }
 }
