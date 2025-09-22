@@ -1,2 +1,3 @@
-import './style.css'
-import './modal'
+import { sheet } from './lib'
+
+document.querySelectorAll('dialog').forEach(sheet)

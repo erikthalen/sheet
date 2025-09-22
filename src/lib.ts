@@ -32,7 +32,7 @@ export function sheet(dialog: HTMLDialogElement) {
       document.body.style.transformOrigin = `center ${window.scrollY}px`
       document.body.style.clipPath = `inset(${
         window.scrollY + 'px'
-      } 0px -10px round calc((1 - var(--amount, 0)) * var(--clip-border, 0px)))`
+      } 0px -1000000000000px round calc((1 - var(--amount, 0)) * var(--clip-border, 0px)))`
 
       await sleep(25)
 
