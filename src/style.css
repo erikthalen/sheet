@@ -147,8 +147,9 @@ pre {
 }
 
 dialog {
-  transform: translateY(100%);
-  transition: all 500ms var(--sheet-easing) allow-discrete;
+  transform: translateY(100vh);
+  transition: all 500ms var(--sheet-easing);
+  transition-behavior: allow-discrete;
 }
 
 dialog::backdrop {
@@ -167,7 +168,7 @@ dialog[open]::backdrop {
 
 @starting-style {
   dialog[open] {
-    transform: translateY(100%);
+    transform: translateY(100vw);
   }
 
   dialog[open]::backdrop {

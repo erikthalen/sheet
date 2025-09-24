@@ -114,14 +114,17 @@ function initDragClose(dialog: HTMLDialogElement) {
 
   window.addEventListener(
     'pointerup',
-    () => {
+    async () => {
       clicked = false
 
       document.body.style.transition = TRANSITION
       document.body.style.removeProperty('--amount')
 
-      dialog.style.removeProperty('transform')
       dialog.style.removeProperty('transition')
+
+      await sleep()
+
+      dialog.style.removeProperty('transform')
 
       if (amount > AMOUNT_TO_CLOSE) dialog.close()
 
@@ -158,7 +161,10 @@ function initViewportResize(root: HTMLElement) {
   const abortController = new AbortController()
 
   function viewportHandler() {
-    root.style.setProperty('--vvh', window.visualViewport?.height + 'px')
+    document.body.style.setProperty(
+      '--vvh',
+      window.visualViewport?.height + 'px'
+    )
   }
 
   viewportHandler()
