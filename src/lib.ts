@@ -77,7 +77,7 @@ export function sheet(dialog: HTMLDialogElement) {
   Object.assign(dialog.style, dialogStaticStyles())
 
   const destroyDragClose = initDragClose(dialog)
-  const destroyViewportResize = initViewportResize(dialog)
+  const destroyViewportResize = initViewportResize()
 
   return () => {
     observer.disconnect()
@@ -157,7 +157,7 @@ function initDragClose(dialog: HTMLDialogElement) {
   }
 }
 
-function initViewportResize(root: HTMLElement) {
+function initViewportResize() {
   const abortController = new AbortController()
 
   function viewportHandler() {
