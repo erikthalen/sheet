@@ -23,7 +23,7 @@ export function sheet(dialog: HTMLDialogElement) {
       document.body.style.transformOrigin = `center ${window.scrollY}px`
       document.body.style.clipPath = `inset(${
         window.scrollY + 'px'
-      } 0px -1000000000000px round calc((1 - var(--amount, 0)) * var(--clip-border, 0px)))`
+      } 0px calc(Infinity * -1px) round calc((1 - var(--amount, 0)) * var(--clip-border, 0px)))`
 
       await sleep(25)
 
@@ -76,18 +76,41 @@ export function sheet(dialog: HTMLDialogElement) {
 
   Object.assign(dialog.style, dialogStaticStyles())
 
-  const destroyDragClose = initDragClose(dialog)
+  const destroyHandle = initHandle(dialog)
+  // initScrollClose(dialog)
   const destroyViewportResize = initViewportResize()
+  const destroyPreventScrollOnInputFocus = preventScrollOnInputFocus(dialog)
 
   return () => {
     observer.disconnect()
     abortController.abort()
-    destroyDragClose()
+    destroyHandle()
     destroyViewportResize()
+    destroyPreventScrollOnInputFocus()
   }
 }
 
-function initDragClose(dialog: HTMLDialogElement) {
+function preventScrollOnInputFocus(dialog: HTMLElement) {
+  const abortController = new AbortController()
+
+  dialog.querySelectorAll('input').forEach(input => {
+    input.addEventListener(
+      'focus',
+      async e => {
+        const target = e.target as HTMLElement
+
+        target.animate([{ opacity: 0 }, { opacity: 1 }], {
+          duration: 10,
+        })
+      },
+      { signal: abortController.signal }
+    )
+  })
+
+  return () => abortController.abort()
+}
+
+function initHandle(dialog: HTMLDialogElement) {
   const abortController = new AbortController()
 
   let clicked = false
@@ -138,6 +161,8 @@ function initDragClose(dialog: HTMLDialogElement) {
     e => {
       if (!clicked) return
 
+      console.log('SCROLL', dialog.scrollTop)
+
       let { height } = dialog.getBoundingClientRect()
 
       const deltaY = e.clientY - pointer.y
@@ -146,6 +171,88 @@ function initDragClose(dialog: HTMLDialogElement) {
 
       dialog.style.transform = `translateY(${amount}px)`
       document.body.style.setProperty('--amount', (amount / height).toString())
+
+      pointer.y = e.clientY
+    },
+    { signal: abortController.signal }
+  )
+
+  return () => {
+    abortController.abort()
+  }
+}
+
+function initScrollClose(dialog: HTMLDialogElement) {
+  const abortController = new AbortController()
+
+  let clicked = false
+  let pointer = { x: 0, y: 0 }
+  let amount = 0
+  let locked = false
+
+  // handle.style.touchAction = 'none'
+
+  dialog.addEventListener(
+    'pointerdown',
+    e => {
+      console.log('SCROLL START', dialog.scrollTop)
+      clicked = true
+      pointer.y = e.clientY
+
+      document.body.style.transition = 'none'
+      dialog.style.transition = 'none'
+    },
+    { signal: abortController.signal }
+  )
+
+  dialog.addEventListener(
+    'pointerup',
+    async () => {
+      clicked = false
+      locked = false
+
+      console.log('POINTER UP')
+
+      document.body.style.transition = TRANSITION
+      document.body.style.removeProperty('--amount')
+
+      dialog.style.removeProperty('transition')
+
+      await sleep()
+
+      dialog.style.removeProperty('transform')
+      dialog.style.removeProperty('touch-action')
+
+      if (amount > AMOUNT_TO_CLOSE) dialog.close()
+
+      amount = 0
+    },
+    { signal: abortController.signal }
+  )
+
+  window.addEventListener(
+    'pointermove',
+    e => {
+      if (!clicked) return
+
+      let { height } = dialog.getBoundingClientRect()
+
+      const deltaY = e.clientY - pointer.y
+
+      if (!locked && amount <= 0 && deltaY > 0) {
+        console.log('SCROLL', amount, deltaY)
+        locked = true
+        dialog.style.touchAction = 'none'
+      }
+
+      amount += deltaY
+      const amountLessTop = amount < 0 ? amount / 20 : amount
+
+      dialog.style.transform = `translateY(${amountLessTop}px)`
+      document.body.style.setProperty(
+        '--amount',
+        (amountLessTop / height).toString()
+      )
 
       pointer.y = e.clientY
     },
@@ -169,16 +276,6 @@ function initViewportResize() {
 
   viewportHandler()
 
-  window.visualViewport?.addEventListener(
-    'scroll',
-    e => {
-      console.log('e', e)
-    },
-    {
-      signal: abortController.signal,
-    }
-  )
-
   window.visualViewport?.addEventListener('resize', viewportHandler, {
     signal: abortController.signal,
   })
@@ -201,12 +298,12 @@ function getDefaultValues() {
 
 function dialogStaticStyles() {
   return {
-    'max-height': 'none',
-    height: 'calc(var(--vvh, 100dvh) - var(--sheet-top-margin, 3rem) + 20px)',
+    'max-height':
+      'calc(var(--vvh, 100dvh) - var(--sheet-top-margin, 3rem) + 20px)',
     'padding-bottom': '20px',
     position: 'fixed',
-    top: 'var(--sheet-top-margin, 3rem)',
-    bottom: 'auto',
+    top: 'auto',
+    bottom: 'calc(100dvh - var(--vvh) - 20px)',
     overflow: 'auto',
     'overscroll-behavior': 'contain',
   }
