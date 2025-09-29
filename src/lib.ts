@@ -182,87 +182,87 @@ function initHandle(dialog: HTMLDialogElement) {
   }
 }
 
-function initScrollClose(dialog: HTMLDialogElement) {
-  const abortController = new AbortController()
+// function initScrollClose(dialog: HTMLDialogElement) {
+//   const abortController = new AbortController()
 
-  let clicked = false
-  let pointer = { x: 0, y: 0 }
-  let amount = 0
-  let locked = false
+//   let clicked = false
+//   let pointer = { x: 0, y: 0 }
+//   let amount = 0
+//   let locked = false
 
-  // handle.style.touchAction = 'none'
+//   // handle.style.touchAction = 'none'
 
-  dialog.addEventListener(
-    'pointerdown',
-    e => {
-      console.log('SCROLL START', dialog.scrollTop)
-      clicked = true
-      pointer.y = e.clientY
+//   dialog.addEventListener(
+//     'pointerdown',
+//     e => {
+//       console.log('SCROLL START', dialog.scrollTop)
+//       clicked = true
+//       pointer.y = e.clientY
 
-      document.body.style.transition = 'none'
-      dialog.style.transition = 'none'
-    },
-    { signal: abortController.signal }
-  )
+//       document.body.style.transition = 'none'
+//       dialog.style.transition = 'none'
+//     },
+//     { signal: abortController.signal }
+//   )
 
-  dialog.addEventListener(
-    'pointerup',
-    async () => {
-      clicked = false
-      locked = false
+//   dialog.addEventListener(
+//     'pointerup',
+//     async () => {
+//       clicked = false
+//       locked = false
 
-      console.log('POINTER UP')
+//       console.log('POINTER UP')
 
-      document.body.style.transition = TRANSITION
-      document.body.style.removeProperty('--amount')
+//       document.body.style.transition = TRANSITION
+//       document.body.style.removeProperty('--amount')
 
-      dialog.style.removeProperty('transition')
+//       dialog.style.removeProperty('transition')
 
-      await sleep()
+//       await sleep()
 
-      dialog.style.removeProperty('transform')
-      dialog.style.removeProperty('touch-action')
+//       dialog.style.removeProperty('transform')
+//       dialog.style.removeProperty('touch-action')
 
-      if (amount > AMOUNT_TO_CLOSE) dialog.close()
+//       if (amount > AMOUNT_TO_CLOSE) dialog.close()
 
-      amount = 0
-    },
-    { signal: abortController.signal }
-  )
+//       amount = 0
+//     },
+//     { signal: abortController.signal }
+//   )
 
-  window.addEventListener(
-    'pointermove',
-    e => {
-      if (!clicked) return
+//   window.addEventListener(
+//     'pointermove',
+//     e => {
+//       if (!clicked) return
 
-      let { height } = dialog.getBoundingClientRect()
+//       let { height } = dialog.getBoundingClientRect()
 
-      const deltaY = e.clientY - pointer.y
+//       const deltaY = e.clientY - pointer.y
 
-      if (!locked && amount <= 0 && deltaY > 0) {
-        console.log('SCROLL', amount, deltaY)
-        locked = true
-        dialog.style.touchAction = 'none'
-      }
+//       if (!locked && amount <= 0 && deltaY > 0) {
+//         console.log('SCROLL', amount, deltaY)
+//         locked = true
+//         dialog.style.touchAction = 'none'
+//       }
 
-      amount += deltaY
-      const amountLessTop = amount < 0 ? amount / 20 : amount
+//       amount += deltaY
+//       const amountLessTop = amount < 0 ? amount / 20 : amount
 
-      dialog.style.transform = `translateY(${amountLessTop}px)`
-      document.body.style.setProperty(
-        '--amount',
-        (amountLessTop / height).toString()
-      )
+//       dialog.style.transform = `translateY(${amountLessTop}px)`
+//       document.body.style.setProperty(
+//         '--amount',
+//         (amountLessTop / height).toString()
+//       )
 
-      pointer.y = e.clientY
-    },
-    { signal: abortController.signal }
-  )
+//       pointer.y = e.clientY
+//     },
+//     { signal: abortController.signal }
+//   )
 
-  return () => {
-    abortController.abort()
-  }
-}
+//   return () => {
+//     abortController.abort()
+//   }
+// }
 
 function initViewportResize() {
   const abortController = new AbortController()
