@@ -32,6 +32,11 @@ body {
 
   background-color: var(--pico-background-color);
   min-height: 100vh;
+
+  &:has(dialog[open]) {
+    overflow: hidden;
+    touch-action: none;
+  }
 }
 
 .background {
@@ -181,7 +186,7 @@ dialog[open]::backdrop {
 
 /* @starting-style {
   dialog[open] {
-    transform: translateY(100vw);
+    transform: translateY(100vh);
   }
 
   dialog[open]::backdrop {

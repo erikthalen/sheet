@@ -129,6 +129,51 @@ const sheets = document.querySelectorAll('dialog').map(sheet)
 sheets.forEach(destroy => destroy())
 </code></pre>
 
+    <pre><code>body {
+  /* can be any color */
+  background-color: white;
+
+  /* disable scroll */
+  &:has(dialog[open]) {
+    overflow: hidden;
+    touch-action: none;
+  }
+
+  /* can be any transition */
+  dialog {
+    transform: translateY(100vh);
+    transition: all 500ms var(--sheet-easing);
+    transition-behavior: allow-discrete;
+  }
+
+  dialog::backdrop {
+    background-color: rgb(0 0 0 / 25%);
+    opacity: 0;
+    transition: all 500ms var(--sheet-easing) allow-discrete;
+
+    touch-action: none;
+  }
+
+  dialog[open] {
+    transform: translateY(0);
+  }
+
+  dialog[open]::backdrop {
+    opacity: calc(1 - var(--amount, 0));
+  }
+
+  @starting-style {
+    dialog[open] {
+      transform: translateY(100vh);
+    }
+
+    dialog[open]::backdrop {
+      opacity: 0;
+    }
+  }
+}
+</code></pre>
+
     <p>Minimal example</p>
 
     <pre><code>&lt;button onclick="document.getElementById('dialog')?.showModal()"&gt;
@@ -146,7 +191,7 @@ sheets.forEach(destroy => destroy())
 
     <p>Configuration</p>
 
-    <pre><code>:root {
+    <pre><code>body {
   --sheet-top-margin: 3rem;
   --sheet-background-scale-amount: 10px;
   --sheet-background-border-radius: 10px;
@@ -154,6 +199,7 @@ sheets.forEach(destroy => destroy())
   --sheet-duration: 500ms;
 }
 </code></pre>
+
   </main>
 </body>
 
