@@ -8,6 +8,9 @@ const sleep = (ms = 0) => new Promise(r => setTimeout(r, ms))
 export function sheet(dialog: HTMLDialogElement) {
   const abortController = new AbortController()
 
+  const background = (document.querySelector('[data-sheet-background]') ||
+    document.body) as HTMLElement
+
   const observer = new MutationObserver(async () => {
     const open = dialog.getAttribute('open') !== null
 
@@ -20,46 +23,46 @@ export function sheet(dialog: HTMLDialogElement) {
 
     if (open) {
       // styles to go from
-      document.body.style.transformOrigin = `center ${window.scrollY}px`
-      document.body.style.clipPath = `inset(${
+      background.style.transformOrigin = `center ${window.scrollY}px`
+      background.style.clipPath = `inset(${
         window.scrollY + 'px'
       } 0px calc(Infinity * -1px) round calc((1 - var(--amount, 0)) * var(--clip-border, 0px)))`
 
       await sleep(25)
 
-      document.body.style.transition = TRANSITION
+      background.style.transition = TRANSITION
       document.documentElement.style.backgroundColor = '#111'
 
       await sleep(25)
 
       // apply transition
-      document.body.style.transition = TRANSITION
+      background.style.transition = TRANSITION
 
       await sleep(25)
 
       // styles to go to
       Object.entries(variables).forEach(([key, value]) => {
-        document.body.style.setProperty(key, value)
+        background.style.setProperty(key, value)
       })
 
-      document.body.style.translate = `0 calc((1 - var(--amount, 0)) * ${settings.scale}px)`
-      document.body.style.scale = `calc(1 - (1 - var(--amount, 0)) * ${
+      background.style.translate = `0 calc((1 - var(--amount, 0)) * ${settings.scale}px)`
+      background.style.scale = `calc(1 - (1 - var(--amount, 0)) * ${
         (settings.scale * 2) / window.innerWidth
       })`
     } else {
       Object.keys(variables).forEach(key => {
-        document.body.style.removeProperty(key)
+        background.style.removeProperty(key)
       })
 
-      document.body.style.removeProperty('translate')
-      document.body.style.removeProperty('scale')
+      background.style.removeProperty('translate')
+      background.style.removeProperty('scale')
 
       // cleanup after transition is done
       setTimeout(() => {
         document.documentElement.style.removeProperty('background-color')
-        document.body.style.removeProperty('transform-origin')
-        document.body.style.removeProperty('transition')
-        document.body.style.removeProperty('clip-path')
+        background.style.removeProperty('transform-origin')
+        background.style.removeProperty('transition')
+        background.style.removeProperty('clip-path')
       }, settings.duration)
     }
   })
@@ -76,7 +79,7 @@ export function sheet(dialog: HTMLDialogElement) {
 
   Object.assign(dialog.style, dialogStaticStyles())
 
-  const destroyHandle = initHandle(dialog)
+  const destroyHandle = initHandle(dialog, background)
   // initScrollClose(dialog)
   const destroyViewportResize = initViewportResize()
   const destroyPreventScrollOnInputFocus = preventScrollOnInputFocus(dialog)
@@ -127,7 +130,7 @@ function preventScrollOnInputFocus(dialog: HTMLElement) {
   return () => abortController.abort()
 }
 
-function initHandle(dialog: HTMLDialogElement) {
+function initHandle(dialog: HTMLDialogElement, background: HTMLElement) {
   const abortController = new AbortController()
 
   let clicked = false
@@ -146,7 +149,7 @@ function initHandle(dialog: HTMLDialogElement) {
       clicked = true
       pointer.y = e.clientY
 
-      document.body.style.transition = 'none'
+      background.style.transition = 'none'
       dialog.style.transition = 'none'
     },
     { signal: abortController.signal }
@@ -157,8 +160,8 @@ function initHandle(dialog: HTMLDialogElement) {
     async () => {
       clicked = false
 
-      document.body.style.transition = TRANSITION
-      document.body.style.removeProperty('--amount')
+      background.style.transition = TRANSITION
+      background.style.removeProperty('--amount')
 
       dialog.style.removeProperty('transition')
 
@@ -185,7 +188,7 @@ function initHandle(dialog: HTMLDialogElement) {
       amount += amount < 0 ? deltaY / 20 : deltaY
 
       dialog.style.transform = `translateY(${amount}px)`
-      document.body.style.setProperty('--amount', (amount / height).toString())
+      background.style.setProperty('--amount', (amount / height).toString())
 
       pointer.y = e.clientY
     },
@@ -214,7 +217,7 @@ function initHandle(dialog: HTMLDialogElement) {
 //       clicked = true
 //       pointer.y = e.clientY
 
-//       document.body.style.transition = 'none'
+//       background.style.transition = 'none'
 //       dialog.style.transition = 'none'
 //     },
 //     { signal: abortController.signal }
@@ -228,8 +231,8 @@ function initHandle(dialog: HTMLDialogElement) {
 
 //       console.log('POINTER UP')
 
-//       document.body.style.transition = TRANSITION
-//       document.body.style.removeProperty('--amount')
+//       background.style.transition = TRANSITION
+//       background.style.removeProperty('--amount')
 
 //       dialog.style.removeProperty('transition')
 
@@ -264,7 +267,7 @@ function initHandle(dialog: HTMLDialogElement) {
 //       const amountLessTop = amount < 0 ? amount / 20 : amount
 
 //       dialog.style.transform = `translateY(${amountLessTop}px)`
-//       document.body.style.setProperty(
+//       background.style.setProperty(
 //         '--amount',
 //         (amountLessTop / height).toString()
 //       )
