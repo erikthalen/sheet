@@ -100,14 +100,27 @@ function preventScrollOnInputFocus(dialog: HTMLElement) {
         const target = e.target as HTMLElement
 
         target.animate([{ opacity: 0 }, { opacity: 1 }], {
-          duration: 10,
+          duration: 1,
         })
 
         if (input.getBoundingClientRect().top > window.innerHeight / 2) {
-          input.scrollIntoView({ behavior: 'smooth', block: 'center' })
+          dialog.style.touchAction = 'none'
+
+          setTimeout(() => {
+            input.style.scrollMarginTop = window.innerHeight / 4 + 'px'
+            input.scrollIntoView({ behavior: 'smooth', block: 'start' })
+            setTimeout(
+              () => input.style.removeProperty('scroll-margin-top'),
+              1000
+            )
+          }, 750)
         }
       },
       { signal: abortController.signal }
+    )
+
+    input.addEventListener('blur', () =>
+      dialog.style.removeProperty('touch-action')
     )
   })
 
@@ -164,8 +177,6 @@ function initHandle(dialog: HTMLDialogElement) {
     'pointermove',
     e => {
       if (!clicked) return
-
-      console.log('SCROLL', dialog.scrollTop)
 
       let { height } = dialog.getBoundingClientRect()
 
@@ -272,10 +283,10 @@ function initViewportResize() {
   const abortController = new AbortController()
 
   function viewportHandler() {
-    document.body.style.setProperty(
-      '--vvh',
-      window.visualViewport?.height + 'px'
-    )
+    const { height } = window.visualViewport || {}
+    if (height) {
+      document.body.style.setProperty('--vvh', height + 'px')
+    }
   }
 
   viewportHandler()
@@ -303,11 +314,11 @@ function getDefaultValues() {
 function dialogStaticStyles() {
   return {
     'max-height':
-      'calc(var(--vvh, 100dvh) - var(--sheet-top-margin, 3rem) + 20px)',
-    'padding-bottom': '20px',
+      'calc(var(--vvh, 100dvh) - var(--sheet-top-margin, 3rem) + 100vh)',
+    'padding-bottom': '100vh',
     position: 'fixed',
     top: 'auto',
-    bottom: 'calc(100dvh - var(--vvh) - 20px)',
+    bottom: 'calc(100dvh - var(--vvh) - 100vh)',
     overflow: 'auto',
     'overscroll-behavior': 'contain',
   }
