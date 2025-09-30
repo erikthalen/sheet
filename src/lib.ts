@@ -102,6 +102,10 @@ function preventScrollOnInputFocus(dialog: HTMLElement) {
         target.animate([{ opacity: 0 }, { opacity: 1 }], {
           duration: 10,
         })
+
+        if (input.getBoundingClientRect().top > window.innerHeight / 2) {
+          input.scrollIntoView({ behavior: 'smooth', block: 'center' })
+        }
       },
       { signal: abortController.signal }
     )
